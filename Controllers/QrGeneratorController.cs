@@ -1,5 +1,3 @@
-
-
 using Microsoft.AspNetCore.Mvc;
 using QRCoder;
 using SixLabors.ImageSharp;
@@ -22,16 +20,17 @@ public class QRCodeController : ControllerBase
                 QRCodeData qrCodeData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
                 using (QRCode qrCode = new QRCode(qrCodeData))
                 {
+                    // Generar el bitmap de QR code
                     using (var bitmap = qrCode.GetGraphic(20))
                     {
+                        // Convertir el bitmap de System.Drawing a ImageSharp
                         using (var memoryStream = new MemoryStream())
                         {
-                            // Guardar el Bitmap en el MemoryStream
                             bitmap.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
                             memoryStream.Position = 0; // Reiniciar la posición del stream
 
                             // Cargar la imagen desde el MemoryStream
-                            using (var image = SixLabors.ImageSharp.Image.Load(memoryStream.ToArray())) // Cargar la imagen sin Rgba32
+                            using (var image = SixLabors.ImageSharp.Image.Load<Rgba32>(memoryStream.ToArray()))
                             {
                                 using (var outputStream = new MemoryStream())
                                 {
@@ -43,9 +42,7 @@ public class QRCodeController : ControllerBase
                     }
                 }
             }
-
         }
-
         catch (Exception ex)
         {
             // Log del error para obtener más información
