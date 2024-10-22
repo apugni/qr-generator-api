@@ -13,7 +13,7 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // Configura el middleware para Swagger
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
