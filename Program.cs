@@ -13,14 +13,14 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // Configura el middleware para Swagger
-//if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
+//if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "QR Code Generator API v1");
-        //c.RoutePrefix = string.Empty; // Para servir Swagger en la raíz
+        c.RoutePrefix = string.Empty; // Para servir Swagger en la raíz
     });
 }
 
