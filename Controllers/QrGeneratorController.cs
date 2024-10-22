@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using QRCoder;
+using ZXing;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using System.Drawing;
 using System.IO;
+using System.Net.NetworkInformation;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -15,31 +14,23 @@ public class QRCodeController : ControllerBase
     {
         try
         {
-            using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
+            var writer = new BarcodeWriterPixelData
             {
-                QRCodeData qrCodeData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
-                using (QRCode qrCode = new QRCode(qrCodeData))
+                Format = ZXing.BarcodeFormat.QR_CODE,
+                Options = new ZXing.Common.EncodingOptions
                 {
-                    // Generar el bitmap de QR code
-                    using (var bitmap = qrCode.GetGraphic(20))
-                    {
-                        // Convertir el bitmap de System.Drawing a ImageSharp
-                        using (var memoryStream = new MemoryStream())
-                        {
-                            bitmap.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
-                            memoryStream.Position = 0; // Reiniciar la posición del stream
+                    Width = 300,
+                    Height = 300
+                }
+            };
 
-                            // Cargar la imagen desde el MemoryStream
-                            using (var image = SixLabors.ImageSharp.Image.Load<Rgba32>(memoryStream.ToArray()))
-                            {
-                                using (var outputStream = new MemoryStream())
-                                {
-                                    image.SaveAsPng(outputStream); // Guardar como PNG
-                                    return File(outputStream.ToArray(), "image/png");
-                                }
-                            }
-                        }
-                    }
+            var pixelData = writer.Write(text);
+            using (var image = SixLabors.ImageSharp.Image.LoadPixelData<Rgba32>(pixelData.Pixels, pixelData.Width, pixelData.Height))
+            {
+                using (var outputStream = new MemoryStream())
+                {
+                    image.SaveAsPng(outputStream); // Guardar como PNG
+                    return File(outputStream.ToArray(), "image/png");
                 }
             }
         }
